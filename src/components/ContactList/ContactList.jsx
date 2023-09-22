@@ -1,22 +1,42 @@
-import { ContactItem } from 'components/ContactList/ContactItem';
-import React from 'react';
-import { useSelector } from 'react-redux';
-import { FlexList } from './ContactList.stiled';
+import { useDispatch, useSelector } from 'react-redux';
+import { deleteContact } from 'redux/operations';
+import { selectContacts, selectFilter } from 'redux/selectors';
+import css from './ContactList.module.css';
+
+const getVisibleContacts = (contacts, filter) => {
+  if (!filter) {
+    return contacts;
+  } else {
+    return contacts.filter(contact => {
+      return contact.name.toLowerCase().includes(filter.toLowerCase());
+    });
+  }
+};
 
 export const ContactList = () => {
-  const contacts = useSelector(state => state.contacts.contacts);
-  const filter = useSelector(state => state.filter);
+  const contacts = useSelector(selectContacts);
+  const filter = useSelector(selectFilter);
+  const visibleContacts = getVisibleContacts(contacts, filter);
 
-  const changedList = contacts.filter(contact =>
-    contact.name.toLowerCase().includes(filter.toLowerCase())
-  );
+  const dispatch = useDispatch();
+  const handleDelete = id => dispatch(deleteContact(id));
 
   return (
-    <FlexList>
-      {changedList.map(item => {
-        const { id, name, number } = item;
-        return <ContactItem key={id} id={id} name={name} number={number} />;
-      })}
-    </FlexList>
+    <div className={css.wraperContactList}>
+      <ul className={css.contactList}>
+        {visibleContacts.map((contact, id) => (
+          <li key={id} className={css.contactListItem}>
+            {contact.name}: {contact.phone}
+            <button
+              type="button"
+              className={css.contactListItemBtn}
+              onClick={() => handleDelete(contact.id)}
+            >
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 };

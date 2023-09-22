@@ -1,71 +1,68 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useState } from 'react';
+import css from './ContactForm.module.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { StyledContactInput, StyledForm } from './ContactForm.styled';
-
 import { addContact } from 'redux/operations';
-import { selectcontacts } from 'redux/selectors';
+import { selectContacts } from 'redux/selectors';
 
-export const ContactForm = ({ btn }) => {
+export const ContactForm = () => {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
   const dispatch = useDispatch();
+  const items = useSelector(selectContacts);
 
-  const contacts = useSelector(selectcontacts);
-
-  const handleChange = evt => {
-    if (evt.target.name === 'name') {
-      setName(evt.target.value);
-    } else if (evt.target.name === 'number') {
-      setNumber(evt.target.value);
-    }
+  const handleChange = e => {
+    const { value } = e.target;
+    setName(value);
   };
 
-  const onSubmit = evt => {
-    evt.preventDefault();
-    const form = evt.target;
-    const name = form.elements.name.value;
-    const number = form.elements.number.value;
-    const newContact = { name, number };
+  const handleChangeNumber = e => {
+    const { value } = e.target;
+    setNumber(value);
+  };
 
-    const includesName = contacts.find(
-      contact => contact.name.toLowerCase() === newContact.name.toLowerCase()
-    );
-    if (!includesName) {
+  const onSubmit = e => {
+    e.preventDefault();
+    const form = e.currentTarget;
+      const contactsLists = [...items];
+    if (contactsLists.findIndex(contact => name === contact.name) !== -1) {
+      alert(`${name} is already in contacts.`);
     } else {
-      return alert(`${newContact.name} is already in contacts`);
+      dispatch(addContact({ name: name, phone: number }));
     }
-    dispatch(addContact(newContact));
 
-    reset();
-  };
-
-  const reset = () => {
-    setName('');
-    setNumber('');
+    form.reset();
   };
 
   return (
-    <div>
-      <StyledForm onSubmit={onSubmit}>
-        <StyledContactInput
-          type="text"
-          name="name"
-          title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-          required
-          value={name}
-          onChange={handleChange}
-        />
-        <StyledContactInput
-          type="tel"
-          name="number"
-          title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-          required
-          value={number}
-          onChange={handleChange}
-        />
-
-        <button type="submit">{btn}</button>
-      </StyledForm>
-    </div>
+    <form className={css.form} onSubmit={onSubmit}>
+      <label className={css.formLabel}>Name </label>
+      <input
+        className={css.formName}
+        type="text"
+        name="name"
+        pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
+        title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
+        required
+        placeholder="Enter name"
+        value={name}
+        onChange={handleChange}
+      />
+      <label className={css.formLabel}>Number </label>
+      <input
+        className={css.formNumber}
+        type="tel"
+        name="number"
+        pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
+        title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
+        required
+        placeholder="Enter phone number"
+        value={number}
+        onChange={handleChangeNumber}
+      />
+      <button className={css.formBtn} type="submit">
+        Add contact
+      </button>
+    </form>
   );
 };

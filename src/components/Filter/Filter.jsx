@@ -1,27 +1,27 @@
-import React from 'react';
-import { useDispatch } from 'react-redux';
-import { filteredContacts } from 'redux/slises/filterSlise';
-import { StyledFilterInput, FilterForms } from './Filter.styled';
+import css from './Filter.module.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectFilter } from 'redux/selectors';
+import { filteredContacts } from 'redux/filterSlice';
 
-export const Filter = ({ value }) => {
+export const Filter = () => {
   const dispatch = useDispatch();
+  const filter = useSelector(selectFilter);
 
-  const handleChangeFilter = event => {
-    if (event.target.name === 'filter') {
-      const filterInputValue = event.target.value;
-      dispatch(filteredContacts(filterInputValue));
-    }
+  const handleChangeFilter = e => {
+    dispatch(filteredContacts(e.target.value));
   };
 
   return (
-    <FilterForms>
-    <StyledFilterInput
-      type="text"
-      name="filter"
-      required
-      value={value}
-      onChange={handleChangeFilter}
-    />
-    </FilterForms>
+    <div>
+      <label className={css.filterLabel}>Find contacts by Name </label>
+      <input
+        className={css.filterName}
+        type="text"
+        name="filter"
+        placeholder="Enter filter"
+        value={filter}
+        onChange={handleChangeFilter}
+      />
+    </div>
   );
 };

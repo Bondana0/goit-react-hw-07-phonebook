@@ -1,36 +1,41 @@
 import React, { useEffect } from 'react';
-import { ThemeProvider } from 'styled-components';
-
-import { ContactList } from './ContactList/ContactList';
-import { GlobalStyle } from './GlobalStyle/GlobalStyle';
+import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { ContactForm } from './ContactForm/ContactForm';
 import { Filter } from './Filter/Filter';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchContacts } from '../redux/operations.js';
-import { selectIsLoading } from '../redux/selectors';
-import { StyledContainer, H1, H2 } from './Container/Container';
-
-const theme = {};
+import { ContactList } from './ContactList/ContactList';
+import { selectIsLoading, selectError } from 'redux/selectors';
+import { fetchContacts } from 'redux/operations';
+import { Loader } from './Loader/Loader';
 
 export const App = () => {
+  
   const dispatch = useDispatch();
   const isLoading = useSelector(selectIsLoading);
+  const error = useSelector(selectError);
 
   useEffect(() => {
     dispatch(fetchContacts());
   }, [dispatch]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <StyledContainer>
-        <GlobalStyle />
-        <H1>Phonebook</H1>
-        <ContactForm btn="Add contact" />
-        <H2>Contacts</H2>
-        <Filter />
-        {isLoading && <p>Loading...</p>}
-        <ContactList />
-      </StyledContainer>
-    </ThemeProvider>
+    <div
+      style={{
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontSize: 20,
+        color: '#010101',
+      }}
+    >
+      <h1>Phonebook</h1>
+      <ContactForm />
+      <h2> Contacts</h2>
+      <Filter />
+      {isLoading && !error && <Loader/>}
+      <ContactList />
+    </div>
   );
 };
